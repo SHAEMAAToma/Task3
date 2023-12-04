@@ -1,0 +1,141 @@
+CREATE TABLE student (
+  student_id INT PRIMARY KEY,
+  first_name VARCHAR(100) NOT NULL,
+  last_name VARCHAR(100) NOT NULL,
+  person_number VARCHAR(12) NOT NULL,
+  address VARCHAR(200) NOT NULL
+);
+CREATE TABLE instructor (
+  instructor_id INT PRIMARY KEY,
+  first_name VARCHAR(100) NOT NULL,
+  last_name VARCHAR(100) NOT NULL,
+  person_number VARCHAR(12) NOT NULL,
+  address VARCHAR(200) NOT NULL
+);
+CREATE TABLE lesson (
+  lesson_id INT PRIMARY KEY,
+  student_id INT,
+  instructor_id INT,
+  instrument_id INT,  -- Lägg till denna om den behövs
+  lesson_date DATE NOT NULL,
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,
+  lesson_type VARCHAR(50) NOT NULL, 
+  FOREIGN KEY (student_id) REFERENCES student(student_id),
+  FOREIGN KEY (instructor_id) REFERENCES instructor(instructor_id),
+  FOREIGN KEY (instrument_id) REFERENCES instrument(instrument_id) -- Lägg till denna om den behövs
+);
+
+CREATE TABLE siblings (
+  student_id_1 INT NOT NULL,
+  student_id_2 INT NOT NULL,
+  FOREIGN KEY (student_id_1) REFERENCES student(student_id),
+  FOREIGN KEY (student_id_2) REFERENCES student(student_id)
+);
+
+CREATE TABLE instrument (
+  instrument_id INT PRIMARY KEY,
+  type VARCHAR(100) NOT NULL,
+  brand VARCHAR(100) NOT NULL,
+  in_stock INT NOT NULL
+);
+
+CREATE TABLE ensemble (
+  ensemble_id INT PRIMARY KEY,
+  lesson_id INT NOT NULL,
+  genre VARCHAR(100) NOT NULL,
+  price_ensemble INT NOT NULL,
+  max_slots INT NOT NULL,
+  min_slots INT NOT NULL,
+  lesson_date DATE NOT NULL,
+  FOREIGN KEY (lesson_id) REFERENCES lesson(lesson_id)
+);
+
+CREATE TABLE instrument_skills (
+  student_id INT NOT NULL,
+  instrument_id INT NOT NULL,
+  level VARCHAR(15) NOT NULL, -- Ex. Beginner, Intermediate, Advanced
+  FOREIGN KEY (student_id) REFERENCES student(student_id),
+  FOREIGN KEY (instrument_id) REFERENCES instrument(instrument_id)
+);
+
+CREATE TABLE instrument_rent (
+  rent_id INT PRIMARY KEY,
+  student_id INT NOT NULL,
+  instrument_id INT NOT NULL,
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  price_rent INT NOT NULL,
+  FOREIGN KEY (student_id) REFERENCES student(student_id),
+  FOREIGN KEY (instrument_id) REFERENCES instrument(instrument_id)
+);
+
+CREATE TABLE student_contact (
+  student_id INT PRIMARY KEY,
+  phone_number VARCHAR(15),
+  email VARCHAR(100),
+  address VARCHAR(200),
+  FOREIGN KEY (student_id) REFERENCES student(student_id)
+);
+
+CREATE TABLE instructor_contact (
+  instructor_id INT PRIMARY KEY,
+  phone_number VARCHAR(15),
+  email VARCHAR(100),
+  address VARCHAR(200),
+  FOREIGN KEY (instructor_id) REFERENCES instructor(instructor_id)
+);
+
+CREATE TABLE lesson_student (
+  lesson_id INT NOT NULL,
+  student_id INT NOT NULL,
+  price_id INT NOT NULL,
+  FOREIGN KEY (lesson_id) REFERENCES lesson(lesson_id),
+  FOREIGN KEY (student_id) REFERENCES student(student_id)
+);
+
+CREATE TABLE lesson_instructor (
+  lesson_id INT NOT NULL,
+  instructor_id INT NOT NULL,
+  FOREIGN KEY (lesson_id) REFERENCES lesson(lesson_id),
+  FOREIGN KEY (instructor_id) REFERENCES instructor(instructor_id)
+);
+
+CREATE TABLE individual_lesson (
+  lesson_id INT PRIMARY KEY,
+  student_id INT NOT NULL,
+  lesson_date DATE,
+  instructor_id INT NOT NULL,
+  price_individual INT NOT NULL,
+  FOREIGN KEY (lesson_id) REFERENCES lesson(lesson_id),
+  FOREIGN KEY (student_id) REFERENCES student(student_id),
+  FOREIGN KEY (instructor_id) REFERENCES instructor(instructor_id)
+);
+
+CREATE TABLE group_lesson (
+  lesson_id INT PRIMARY KEY,
+  max_slots INT NOT NULL,
+  min_slots INT NOT NULL,
+  price_group INT NOT NULL,
+  lesson_date DATE,
+  FOREIGN KEY (lesson_id) REFERENCES lesson(lesson_id)
+);
+CREATE TABLE parent (
+  parent_id INT PRIMARY KEY,
+  full_name VARCHAR(200) NOT NULL,
+  phone_number VARCHAR(15),
+  email VARCHAR(100),
+  address VARCHAR(200)
+);
+CREATE TABLE contact_parent (
+  student_id INT NOT NULL,
+  parent_id INT NOT NULL,
+  FOREIGN KEY (student_id) REFERENCES student(student_id),
+  FOREIGN KEY (parent_id) REFERENCES parent(parent_id)
+);
+CREATE TABLE price_list (
+  price_id INT PRIMARY KEY,
+  lesson_type VARCHAR(50) NOT NULL,  -- Ex. 'Individual', 'Group', 'Ensemble'
+  level VARCHAR(15) NOT NULL,       -- Ex. 'Beginner', 'Intermediate', 'Advanced'
+  price_for_lesson INT NOT NULL      -- Kostnaden för lektionen
+);
