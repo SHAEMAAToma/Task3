@@ -1,13 +1,12 @@
 --Query1
-SELECT
-  TO_CHAR(lesson_date, 'Mon') AS Month,
-  COUNT(*) AS Total,
-  COUNT(CASE WHEN lesson_type = 'Individual' THEN 1 END) AS Individual,
-  COUNT(CASE WHEN lesson_type = 'Group' THEN 1 END) AS Group,
-  COUNT(CASE WHEN lesson_type = 'Ensemble' THEN 1 END) AS Ensemble
+SELECT 
+    TO_CHAR(lesson_date, 'Month') AS month,
+    COUNT() AS total_no_lessons,
+    COUNT() FILTER (WHERE lesson_type = 'Individual') AS individual,
+    COUNT() FILTER (WHERE lesson_type = 'Group') AS group,
+    COUNT() FILTER (WHERE lesson_type = 'Ensemble') AS ensemble
 FROM lesson
-WHERE EXTRACT(YEAR FROM lesson_date) = 2023 
-GROUP BY TO_CHAR(lesson_date, 'Mon')
+GROUP BY TO_CHAR(lesson_date, 'Month')
 ORDER BY MIN(lesson_date);
 
 --Query2
