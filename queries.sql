@@ -30,35 +30,35 @@ ORDER BY
   r.number_of_sibling;
 
 --Query3
-SELECT
-  i.instructor_id,
-  i.first_name,
-  i.last_name,
-  COUNT(i.instructor_id) AS no_of_lesson
-FROM
-(
-  SELECT instructor_id, date_time FROM individual_lesson
-  UNION ALL
-  SELECT instructor_id, date_time FROM group_lesson
-  UNION ALL
-  SELECT instructor_id, date_time FROM ensemble_lesson
-) AS subquery
-JOIN instructor i ON subquery.instructor_id = i.instructor_id
-WHERE EXTRACT(MONTH FROM date_time) = 1
-GROUP BY i.instructor_id, i.first_name, i.last_name
-HAVING COUNT(i.instructor_id) > 0;
+SELECT 
+    i.instructor_id,
+    i.first_name,
+    i.last_name,
+    COUNT(*) AS number_of_lessons
+FROM 
+    lesson l
+JOIN 
+    instructor i ON l.instructor_id = i.instructor_id
+WHERE 
+    EXTRACT(MONTH FROM l.lesson_date) = 1 -- Assuming January is represented by month number 1
+GROUP BY 
+    i.instructor_id, i.first_name, i.last_name;
 
 --Query4
-SELECT
-  e.genre,
-  (CASE
-    WHEN COUNT(*) = e.max_slots THEN 'Full booked'
-    WHEN COUNT(*) = e.max_slots - 1 THEN '1 seat left'
-    WHEN COUNT(*) = e.max_slots - 2 THEN '2 seats left'
-    ELSE 'more seats left'
-  END) AS available_seats,
-  e.lesson_date
-FROM ensemble e
-JOIN ensemble_students es ON e.ensemble_id = es.ensemble_id
-WHERE date_trunc('week', current_date + interval '1 week') = date_trunc('week', e.lesson_date)
-GROUP BY e.ensemble_id, e.genre, e.max_slots, e.lesson_date;
+SELECT 
+    e.genre,
+    el.lesson_date,
+    TO_CHAR(el.lesson_date, 'Day') AS weekday,
+    CASE 
+        WHEN e.max_slots - COALESCE((SELECT COUNT(*) FROM ensemble_lesson el_inner WHERE el_inner.ensemble_id = el.ensemble_id), 0) = 0 THEN 'Full booked'
+        WHEN e.max_slots - COALESCE((SELECT COUNT(*) FROM ensemble_lesson el_inner WHERE el_inner.ensemble_id = el.ensemble_id), 0) BETWEEN 1 AND 2 THEN '1-2 seats left'
+        ELSE 'More seats available'
+    END AS seats_available_status
+FROM 
+    ensemble e
+JOIN 
+    ensemble_lesson el ON e.ensemble_id = el.ensemble_id
+WHERE 
+    el.lesson_date BETWEEN '2024-02-11' AND '2024-02-15'
+ORDER BY 
+    el.lesson_date;
